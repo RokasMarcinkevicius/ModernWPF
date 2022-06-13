@@ -1,0 +1,21 @@
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="MauiSqlite.ClientPage"
+             >
+
+    <VerticalStackLayout>
+        <Button Clicked="AddClientClicked" Text="Add client"/>
+        <Button Clicked="UpdateClientClicked" Text="Update client"/>
+        <Button Clicked="DeleteClientClicked" Text="Delete client"/>
+        <CollectionView x:Name="collectionView" SelectionMode="Single">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <VerticalStackLayout>
+                        <Label Text="{Binding Name}" />
+                        <Label Text="{Binding Surname}" />
+                    </VerticalStackLayout>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+    </VerticalStackLayout>
+</ContentPage>

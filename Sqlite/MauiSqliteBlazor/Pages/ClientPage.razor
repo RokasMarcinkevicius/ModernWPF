@@ -1,0 +1,97 @@
+﻿@page "/Client"
+@using SqliteRepository
+
+@inject ClientRepository clientRepository
+
+<h1>Client Page</h1>
+<p>
+    <label>Client Name</label>
+    <input @bind="ClientName" />
+</p>
+<p>
+    <label>Client Surname</label>
+    <input @bind="ClientSurname" />
+</p>
+<button @onclick="AddClientClicked">Add client</button>
+<button @onclick="DeleteClientsWithoutOrders">Delete Clients Without Orders</button>
+
+@if (clients == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ClientId</th>
+                <th>Name</th>
+                <th>Surname</th>
+                <th>Client has orders?</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var client in clients)
+            {
+                <tr>
+                    <td>@client.ClientId</td>
+                    <td>@client.Name</td>
+                    <td>@client.Surname</td>
+                    <td>@client.HasOrder</td>
+                    <td>
+                        <button @onclick="()=>UpdateClientClicked(client)">Update client</button>
+                        <button @onclick="()=>DeleteClientClicked(client)">Delete client</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<Client>? clients;
+    private string? ClientName { get; set; }
+    private string? ClientSurname { get; set; }
+
+    protected override void OnInitialized()
+    {
+        GetClients();
+    }
+
+    private void AddClientClicked()
+    {
+        var client = new Client()
+            {
+                Name =  ClientName != null ? ClientName : "TestName",
+                Surname = ClientSurname != null ? ClientSurname : "TestSurname"
+            };
+        clientRepository.CreateClient(client);
+        GetClients();
+    }
+
+    private void UpdateClientClicked(Client client)
+    {
+        client.Surname = "Clicked";
+        client.HasOrder = true;
+        clientRepository.UpdateClient(client);
+        GetClients();
+    }
+
+    private void DeleteClientClicked(Client client)
+    {
+        clientRepository.DeleteClient(client);
+        GetClients();
+    }
+
+    private void DeleteClientsWithoutOrders()
+    {
+        clientRepository.DeleteClientsWithoutOrders();
+        GetClients();
+    }
+
+    void GetClients()
+    {
+        clients = clientRepository.GetClients();
+    }
+}

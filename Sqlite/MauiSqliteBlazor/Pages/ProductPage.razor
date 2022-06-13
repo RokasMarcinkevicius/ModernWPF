@@ -1,0 +1,87 @@
+﻿@page "/Product"
+@using SqliteRepository
+
+@inject ProductRepository productRepository
+
+<h1>Product Page</h1>
+<p>
+    <label>Product Name</label>
+    <input @bind="ProductName" />
+</p>
+<p>
+    <label>Product Price</label>
+    <input @bind="ProductPrice" />
+</p>
+<button @onclick="AddProductClicked">Add product</button>
+
+@if (products == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ProductId</th>
+                <th>Name</th>
+                <th>Price</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var product in products)
+            {
+                <tr>
+                    <td>@product.ProductId</td>
+                    <td>@product.Name</td>
+                    <td>@product.Price</td>
+                    <td>
+                        <button @onclick="()=>UpdateProductClicked(product)">Update product</button>
+                        <button @onclick="()=>DeleteProductClicked(product)">Delete product</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<Product>? products;
+    private string? ProductName { get; set; }
+    private long ProductPrice { get; set; }
+
+    protected override void OnInitialized()
+    {
+        GetProducts();
+    }
+
+    private void AddProductClicked()
+    {
+        var product = new Product()
+            {
+                Name = ProductName != null ? ProductName : "TestProduct",
+                Price = ProductPrice != 0 ? ProductPrice : Random.Shared.Next(1, 1000),
+            };
+        productRepository.CreateProduct(product);
+        GetProducts();
+    }
+
+    private void UpdateProductClicked(Product product)
+    {
+        product.Price = Random.Shared.Next(1, 1000);
+        productRepository.UpdateProduct(product);
+        GetProducts();
+    }
+
+    private void DeleteProductClicked(Product product)
+    {
+        productRepository.DeleteProduct(product);
+        GetProducts();
+    }
+
+    void GetProducts()
+    {
+        products = productRepository.GetProducts();
+    }
+}

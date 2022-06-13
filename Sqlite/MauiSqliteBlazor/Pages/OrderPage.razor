@@ -1,0 +1,90 @@
+﻿@page "/"
+@using SqliteRepository
+
+@inject OrderRepository orderRepository
+
+<h1>Order Page</h1>
+<p>
+    <label>Order ClientId</label>
+    <input @bind="OrderClientId" />
+</p>
+<p>
+    <label>Order ProductId</label>
+    <input @bind="OrderProductId" />
+</p>
+<button @onclick="AddOrderClicked">Add order</button>
+
+@if (orders == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>OrderId</th>
+                <th>ClientId</th>
+                <th>ProductId</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var order in orders)
+            {
+                <tr>
+                    <td>@order.OrderId</td>
+                    <td>@order.ClientId</td>
+                    <td>@order.ProductId</td>
+                    <td>
+                        <button @onclick="()=>UpdateOrderClicked(order)">Update order</button>
+                        <button @onclick="()=>DeleteOrderClicked(order)">Delete order</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<Order>? orders;
+    private int OrderClientId { get; set; }
+    private int OrderProductId { get; set; }
+
+    protected override void OnInitialized()
+    {
+        GetOrders();
+    }
+
+    private void AddOrderClicked()
+    {
+        var order = new Order()
+            {
+                ClientId = OrderClientId != 0 ? OrderClientId : Random.Shared.Next(1, 1000),
+                ProductId = OrderProductId != 0 ? OrderProductId : Random.Shared.Next(1, 1000),
+            };
+        orderRepository.CreateOrder(order);
+        GetOrders();
+    }
+
+    private void UpdateOrderClicked(Order order)
+    {
+        if(order.ClientId != 0)
+        {
+           order.ClientId = Random.Shared.Next(1, 1000);
+        }
+        orderRepository.UpdateOrder(order);
+        GetOrders();
+    }
+
+    private void DeleteOrderClicked(Order order)
+    {
+        orderRepository.DeleteOrder(order);
+        GetOrders();
+    }
+
+    void GetOrders()
+    {
+        orders = orderRepository.GetOrders();
+    }
+}
